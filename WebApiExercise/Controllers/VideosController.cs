@@ -44,7 +44,21 @@ namespace WebApiExercise.Controllers
             }
             else
             {
-                return new NotFoundObjectResult("No video uploaded for the Publisher");
+                return new NotFoundObjectResult("Not Exist video with given id");
+            }
+        }
+
+        [HttpGet()]
+        public async Task<ObjectResult> GetAllVideo(int pageSize, int pageNumber)
+        {
+            var videos = await _videoService.GetListVideo(pageSize:pageSize,pageNumber:pageNumber);
+            if (videos.Count>0)
+            {
+                return new OkObjectResult(videos);
+            }
+            else
+            {
+                return new NotFoundObjectResult("No video uploaded!");
             }
         }
     }

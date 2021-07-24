@@ -4,21 +4,20 @@ using System.Linq;
 using System.Net;
 using System.Net.Mail;
 using System.Threading.Tasks;
+using WebApiExercise.Models;
 
 namespace WebApiExercise.Services
 {
     public class NotificationService : INotificationService
     {
         private readonly IPublisherService _publisherService;
-        private readonly IVideoService _videoService;
-        public NotificationService(IPublisherService publisherService,IVideoService videoService)
+        public NotificationService(IPublisherService publisherService)
         {
             _publisherService = publisherService;
         }
-        public async Task EmailNotification(int publisherId, int videoId)
+        public async Task EmailNotification(Video video)
         {
-            var publisher = await _publisherService.GetPublisherById(publisherId);
-            var video = await _videoService.GetVideoById(publisherId);
+            var publisher = video.Publisher;
             foreach (var subscriber in publisher.Subscribers)
             {
                 await SendEmail(publisher.PublisherName,subscriber.SubscriberEmail, video.VideoName);

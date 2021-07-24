@@ -32,7 +32,7 @@ namespace WebApiExercise.Controllers
                 await _publisherService.RegisterPublisher(publisher);
                 return new OkObjectResult($"Publisher {publisher.PublisherName} Created!");
             }
-            return new BadRequestObjectResult("Error Occupied!");
+            return new BadRequestObjectResult("Error Occupied! Check the input data");
         }
         [HttpPost("upload-video")]
         public async Task<ObjectResult> UploadVideo([FromBody] Video video)
@@ -42,15 +42,27 @@ namespace WebApiExercise.Controllers
                 await _videoService.UploadVideo(video);
                 return new OkObjectResult($"Successfully Upload {video.VideoName}!");
             }
-            return new BadRequestObjectResult("Error Occupied!");
+            return new BadRequestObjectResult("Error Occupied! Check the input data");
         }
 
-        [HttpPost("publish-video/{publisherId}/{videoId}")]
-        public async Task<ObjectResult> PublishVideo(int publisherId, int videoId)
+        [HttpPost("publish-video/{videoId}")]
+        public async Task<ObjectResult> PublishVideo(int videoId)
         {
-            await _videoService.PublishVideo(videoId);
-            await _notificationService.EmailNotification(publisherId,videoId);
-            return new OkObjectResult("Successfully Publish!");
+            var video = await _videoService.GetVideoById(videoId);
+            if (video is not null)
+            {
+                if (video.Status ==0)
+                {
+                    await _videoService.PublishVideo(video);
+                    await _notificationService.EmailNotification(video);
+                    return new OkObjectResult("Successfully Publish!");
+                }
+                return new BadRequestObjectResult("Video is already Published!");
+            }
+            else
+            {
+                return new NotFoundObjectResult("Not exist video with given Id");
+            }
         }
     }
 }

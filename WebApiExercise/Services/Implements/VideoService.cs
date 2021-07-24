@@ -21,17 +21,15 @@ namespace WebApiExercise.Services
             await _dbContext.SaveChangesAsync();
         }
 
-        public async Task PublishVideo(int videoId)
+        public async Task PublishVideo(Video video)
         {
-            var video = await GetVideoById(videoId);
             video.PublishDate = DateTime.Now;
             video.Status = 1;
             await _dbContext.SaveChangesAsync();
         }
 
-        public async Task DeleteVideo(int videoId)
+        public async Task DeleteVideo(Video video)
         {
-            var video = await GetVideoById(videoId);
             _dbContext.Videos.Remove(video);
             await _dbContext.SaveChangesAsync();
         }
@@ -51,6 +49,12 @@ namespace WebApiExercise.Services
                 .Include(video => video.Publisher)
                 .FirstOrDefaultAsync(video => video.VideoId == videoId);
             return video;
+        }
+
+        public async Task<List<Video>> GetListVideo(int pageSize, int pageNumber)
+        {
+            var videos = await _dbContext.Videos.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
+            return videos;
         }
     }
 }

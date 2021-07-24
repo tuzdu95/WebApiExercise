@@ -10,11 +10,9 @@ namespace WebApiExercise.Services
     public class SubscriberService : ISubscriberService
     {
         private readonly WebApiExerciseContext _dbContext;
-        private readonly IPublisherService _publisherService;
-        public SubscriberService(WebApiExerciseContext dbContext, IPublisherService publisherService)
+        public SubscriberService(WebApiExerciseContext dbContext)
         {
             _dbContext = dbContext;
-            _publisherService = publisherService;
         }
 
         public async Task<HashSet<Publisher>> GetListPublisherBySubscriberId(int subscriberId)
@@ -25,9 +23,10 @@ namespace WebApiExercise.Services
 
         public async Task<Subscriber> GetSubscriberById(int subscriberId)
         {
-            return await _dbContext.Subscribers
+            var subscriber = await _dbContext.Subscribers
                 .Include(sub => sub.Publishers)
                 .FirstOrDefaultAsync(sub => sub.SubscriberId == subscriberId);
+            return subscriber;
         }
 
         public async Task RegisterSubscriber(Subscriber subscriber)
@@ -36,18 +35,14 @@ namespace WebApiExercise.Services
             await _dbContext.SaveChangesAsync();
         }
 
-        public async Task SubscribePublisher(int publisherId, int subscriberId)
+        public async Task SubscribePublisher(Publisher publisher, Subscriber subscriber)
         {
-            var subscriber = await GetSubscriberById(subscriberId);
-            var publisher = await _publisherService.GetPublisherById(publisherId);
             publisher.Subscribers.Add(subscriber);
             await _dbContext.SaveChangesAsync();
         }
 
-        public async Task UnSubscribePublisher(int publisherId, int subscriberId)
+        public async Task UnSubscribePublisher(Publisher publisher, Subscriber subscriber)
         {
-            var subscriber = await GetSubscriberById(subscriberId);
-            var publisher = await _publisherService.GetPublisherById(publisherId);
             publisher.Subscribers.Remove(subscriber);
             await _dbContext.SaveChangesAsync();
         }

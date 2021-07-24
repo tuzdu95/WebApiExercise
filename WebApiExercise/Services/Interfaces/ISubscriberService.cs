@@ -9,8 +9,8 @@ namespace WebApiExercise.Services
     public interface ISubscriberService
     {
         Task RegisterSubscriber(Subscriber subscriber);
-        Task SubscribePublisher(int publisherId, int subscriberId);
-        Task UnSubscribePublisher(int publisherId, int subscriberId);
+        Task SubscribePublisher(Publisher publisher, Subscriber subscriber);
+        Task UnSubscribePublisher(Publisher publisher, Subscriber subscriber);
         Task<Subscriber> GetSubscriberById(int subscriberId);
         Task<HashSet<Publisher>> GetListPublisherBySubscriberId(int subscriberId);
     }
